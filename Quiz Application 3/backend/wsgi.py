@@ -1,5 +1,15 @@
-from app import create_app
+from importlib import import_module
 
-app = create_app()
-from app import application as app
-from app import server as app
+mod = import_module("app")   # imports app.py
+
+if hasattr(mod, "app"):
+    app = mod.app
+elif hasattr(mod, "application"):
+    app = mod.application
+elif hasattr(mod, "create_app"):
+    app = mod.create_app()
+else:
+    raise RuntimeError(
+        "No Flask app found. Define `app = Flask(__name__)` or `application = Flask(__name__)` "
+        "or a `create_app()` function inside app.py"
+    )
