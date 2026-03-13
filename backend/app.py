@@ -1,5 +1,5 @@
 import os
-from flask import Flask, jsonify
+from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from config import Config
@@ -10,7 +10,6 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:5173")
     CORS(app,
          resources={r"/api/*": {"origins": "*"}},
          allow_headers=["Content-Type", "Authorization"],
@@ -29,23 +28,6 @@ def create_app():
 
     with app.app_context():
         db.create_all()
-
-    # TEMPORARY - remove after seeding!
-    @app.route("/api/seed-admin")
-    def seed_admin():
-        from models import User
-        from werkzeug.security import generate_password_hash
-        if User.query.filter_by(email="admin@quizapp.com").first():
-            return jsonify({"message": "Admin already exists!"})
-        admin = User(
-            username="admin",
-            email="admin@quizapp.com",
-            password_hash=generate_password_hash("admin123"),
-            role="admin"
-        )
-        db.session.add(admin)
-        db.session.commit()
-        return jsonify({"message": "Admin created!"})
 
     return app
 
