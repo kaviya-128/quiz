@@ -10,9 +10,12 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    # Extensions
-    frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:5173")
-    CORS(app, resources={r"/api/*": {"origins": [frontend_url, "http://localhost:5173"]}})
+    # Extensions - allow all origins (fixes CORS reliably)
+    CORS(app, 
+         resources={r"/api/*": {"origins": "*"}},
+         allow_headers=["Content-Type", "Authorization"],
+         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    )
     JWTManager(app)
     db.init_app(app)
 
